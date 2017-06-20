@@ -6,9 +6,9 @@ Docker configuration and scripts to create a Corda image. This docker image base
 
 * Check Dockerfile (e.g. to adjust version or Expose ports)
 * `docker build -t corda:m12 . ` - to create base Corda image (called _corda:m12_)
-* `docker create --env CORDA_CITY=Wroclaw --env CORDA_COUNTRY=Poland --env CORDA_LEGAL_NAME="Very important node" --name corda11 -t corda:m11` - to create configured container based on above (_corda:m12_) image and called _corda12_
-* `docker start corda11` - to start the _corda12_ container
-* `docker exec -t -i corda11 bash` - to login into the container
+* `docker create --env CORDA_CITY=Wroclaw --env CORDA_COUNTRY=Poland --env CORDA_LEGAL_NAME="Very important node" --name corda12 -t corda:m12` - to create configured container based on above (_corda:m12_) image and called _corda12_
+* `docker start corda12` - to start the _corda12_ container
+* `docker exec -t -i corda12 bash` - to login into the container
 
 
 ## Node configuration
