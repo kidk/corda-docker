@@ -19,8 +19,7 @@ basedir : "/opt/corda"
 p2pAddress : "$CORDA_HOST:$CORDA_PORT_P2P"
 rpcAddress : "$CORDA_HOST:$CORDA_PORT_RPC"
 h2port : 11000
-myLegalName : "CN=$CORDA_LEGAL_NAME,O=$CORDA_ORG,OU=$CORDA_ORG_UNIT,L=$CORDA_CITY,C=$CORDA_COUNTRY"
-emailAddress : "$CORDA_EMAIL"
+myLegalName : "CN=$CORDA_LEGAL_NAME,O=$CORDA_ORG,OU=$CORDA_ORG_UNIT,L=$CORDA_CITY,C=$CORDA_COUNTRY, E=$CORDA_EMAIL"
 keyStorePassword : "cordacadevpass"
 trustStorePassword : "trustpass"
 extraAdvertisedServiceIds: [ "" ]
