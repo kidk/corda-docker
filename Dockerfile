@@ -1,7 +1,5 @@
 FROM centos:7
 
-MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
-
 LABEL name="bluebankio/corda" \
       maintainer="salim.badakhchani@bluebank.io" \
       vendor="bluebankio" \
