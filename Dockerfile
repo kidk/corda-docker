@@ -26,7 +26,7 @@ RUN yum update -y && \
     chmod -R u+x ${APP_ROOT} && \
     chgrp -R 0 ${APP_ROOT} && \
     chmod -R g=u ${APP_ROOT} /etc/passwd && \
-    wget -O ${APP_ROOT}/corda.jar http://repo1.maven.org/maven2/net/corda/corda/1.0.0/corda-1.0.0.jar && \
+    wget -O ${APP_ROOT}/corda.jar http://repo1.maven.org/maven2/net/corda/corda/2.0.0/corda-2.0.0.jar && \
     chown -R 10001:10001 ${APP_ROOT}
 
 EXPOSE 10002 10004
