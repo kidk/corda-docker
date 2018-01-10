@@ -1,36 +1,48 @@
-FROM centos:7
+# Base image from (http://phusion.github.io/baseimage-docker)
+FROM phusion/baseimage:0.9.22
 
-LABEL name="bluebankio/corda" \
-      maintainer="salim.badakhchani@bluebank.io" \
-      vendor="bluebankio" \
-      version="1" \
-      release="1" \
-      summary="Public docker image for https://www.corda.net" \
-      description="Corda is a distributed ledger platform designed to record, manage and automate legal agreements between business partners. Designed by (and for) the world's largest financial institutions yet with applications in multiple industries. It offers a unique response to the privacy and scalability challenges facing decentralised applications. https://www.corda.net - Base docker image for Corda"
+# Set up Version
+ENV version=2.0.0
 
-### Setup user for build execution and application runtime
-ENV APP_ROOT=/opt/app-root
-ENV PATH=${APP_ROOT}:${PATH} HOME=${APP_ROOT}
+# Set image labels
+LABEL net.corda.version=${version}
+LABEL vendor="R3"
+MAINTAINER <devops@r3.com>
 
-### Containers should NOT run as root as a good practice
-WORKDIR ${APP_ROOT}
+# Install OpenJDK from zulu.org and update system
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9 \
+ && (echo "deb http://repos.azulsystems.com/ubuntu stable main" >> /etc/apt/sources.list.d/zulu.list) \
+ && apt-get -qq update \
+ && apt-get -y upgrade -y -o Dpkg::Options::="--force-confold" \
+ && apt-get -qqy install zulu-8 ntp \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN yum update -y && \
-    yum install -y wget && \
-    yum install -y java-1.8.0-openjdk && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    mkdir -p ${APP_ROOT}/plugins && \
-    mkdir -p ${APP_ROOT}/certificates && \
-    mkdir -p ${APP_ROOT}/.cache && \
-    chmod -R u+x ${APP_ROOT} && \
-    chgrp -R 0 ${APP_ROOT} && \
-    chmod -R g=u ${APP_ROOT} /etc/passwd && \
-    wget -O ${APP_ROOT}/corda.jar http://repo1.maven.org/maven2/net/corda/corda/2.0.0/corda-2.0.0.jar && \
-    chown -R 10001:10001 ${APP_ROOT}
+# Add user corda
+RUN groupadd corda \
+ && useradd -c "Corda user" -g corda -m -s /bin/bash corda
 
-EXPOSE 10002 10004
+# Create /opt/corda directory
+RUN mkdir -p /opt/corda/plugins && mkdir -p /opt/corda/logs
 
-USER 10001
+# Copy corda jar
+ADD --chown=corda:corda https://dl.bintray.com/r3/corda/net/corda/corda/$version/corda-$version.jar /opt/corda/corda.jar
+# (for now use local dir rather then remote location)
+#COPY corda-$version.jar /opt/corda/corda.jar
 
-CMD [ "java", "-jar", "corda.jar" ]
+### Init script for corda
+RUN mkdir /etc/service/corda
+COPY corda-$version.sh /etc/service/corda/run
+RUN chmod +x /etc/service/corda/run
+
+RUN chown -R corda:corda /opt/corda
+
+# Expose port for corda (default is 10002)
+EXPOSE 10002
+
+# Working directory for Corda
+WORKDIR /opt/corda
+ENV HOME=/opt/corda
+
+# Start runit
+CMD ["/sbin/my_init"]
