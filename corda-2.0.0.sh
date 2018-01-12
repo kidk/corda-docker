@@ -12,8 +12,6 @@ export CORDA_EMAIL="${CORDA_EMAIL:-admin@corda.test}"
 export JAVA_OPTIONS="${JAVA_OPTIONS--Xmx512m}"
 export JAVA_CAPSULE="${JAVA_CAPSULE-''}"
 
-cd /opt/corda
-
 cat > node.conf << EOF
 basedir : "/opt/corda"
 p2pAddress : "$CORDA_HOST:$CORDA_PORT_P2P"
@@ -37,6 +35,3 @@ rpcUsers=[
     }
 ]
 EOF
-
-chown corda:corda node.conf
-exec /sbin/setuser corda java $JAVA_OPTIONS -Dcapsule.jvm.args="$CAPSULE_ARGS" -jar /opt/corda/corda.jar >>/opt/corda/logs/output.log 2>&1
