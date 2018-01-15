@@ -4,6 +4,10 @@ FROM phusion/baseimage:0.9.22
 # Set up Version
 ENV version=1.0.0
 
+# Working directory for Corda
+WORKDIR /opt/corda
+ENV HOME=/opt/corda
+
 # Set image labels
 LABEL net.corda.version=${version}
 LABEL vendor="R3"
@@ -32,17 +36,15 @@ ADD https://dl.bintray.com/r3/corda/net/corda/corda/$version/corda-$version.jar 
 
 ### Init script for corda
 RUN mkdir /etc/service/corda
-COPY corda-$version.sh /etc/service/corda/run
-RUN chmod +x /etc/service/corda/run
-
+# COPY corda-$version.sh /etc/service/corda/run
+COPY corda-$version.sh /opt/corda/
+# RUN chmod +x /etc/service/corda/run
+RUN chmod +x /opt/corda/corda-$version.sh
+RUN /opt/corda/corda-2.0.0.sh
 RUN chown -R corda:corda /opt/corda
 
 # Expose port for corda (default is 10002)
 EXPOSE 10002
-
-# Working directory for Corda
-WORKDIR /opt/corda
-ENV HOME=/opt/corda
 
 # Start runit
 CMD [ "java", "-jar", "corda.jar" ]
