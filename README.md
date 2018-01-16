@@ -5,9 +5,9 @@ Based on Alphine, non-root user and tested in Kubernetes and OpenShift.
 Certificates, plugins and node.conf should be added to child images or mounted as volumes on container.
 
 ## Supported tags and respective `Dockerfile` links
-* master
-* `v1.0` [_(v1.0/Dockerfile)_](https://github.com/bluebankio/corda-docker/blob/b76268e007cdd9ad135d3d124d18f5ba684f0031/Dockerfile)
-* `v2.0` [_(v2.0/Dockerfile)_](https://github.com/bluebankio/corda-docker/blob/45adfc2a1e2f46958c8f22ae69e23160cc0d96e3/Dockerfile)
+
+* `1.0` [_(1.0/Dockerfile)_](https://github.com/bluebankio/corda-docker/tree/1.0)
+* `2.0`, `latest` [_(2.0/Dockerfile)_](https://github.com/bluebankio/corda-docker/tree/2.0)
 
 ## Quick reference
 Documentation: [Corda Docs v1.0](https://docs.corda.net/releases/release-V1.0/) or [Corda Doc v2.0](https://docs.corda.net/releases/release-V2.0/)
@@ -36,13 +36,32 @@ https://docs.corda.net/
 * `docker build -t corda . ` - this will create a base image called "corda"
 * `docker run -it --rm --name corda corda ` - this will start up an interactive container using the base image you built
 
-### Adding more to the base image
-If you want to do more than what the base image does, please follow the below steps.
-* Create a new `Dockerfile`
-* Put `FROM bluebankio/corda-docker` at the start
-* Then add your changes after this.
+## Child images
+If you want to do more with this base image, you will need to add the required corda files. The image expects `/opt/corda/plugins`, `/opt/corda/certificates`, `/opt/corda/logs`, `/opt/corda/corda.jar` and `opt/corda/node.conf`. There are two ways you can reference these files and folders in your image.
 
-This will allow you to use this image as the base and add your changes ontop.
+### Copying files directly
+You can copy the required files across directly into the image from a local directory - see below.
+
+```
+FROM bluebankio/corda-docker
+
+# Copying required folders
+COPY /plugins/ /opt/corda/plugins
+COPY /certificates/ /opt/corda/certificates
+COPY /logs/ /opt/corda/logs
+
+# Copying required files
+COPY /corda.jar /opt/corda
+COPY /node.conf /opt/corda
+```
+### Mounting a volme
+You could also mount a volume that uses a fixed location for the files to be referenced to. For this you will need to state where the volumes will stay, and then reference that location on start - see below.
+
+```
+docker build -t corda . 
+docker run -it --rm --name corda corda -v plugins:/opt/corda/plugins -v certificates:/opt/corda/certificates -v logs:/opt/corda/logs -v corda.jar:/opt/corda -v node.conf:/opt/corda
+```
+
 
 ## Image Variants
 ### corda: {version} (latest)
@@ -55,19 +74,21 @@ This image is using corda v1.0 as the base. Please see [here](https://docs.corda
 This image is using corda v1.0 as the base. Please see [here](https://docs.corda.net/releases/release-V2.0/) for further information on v2.0 of corda.
 
 ## Acknowledgments and Authors
-This project is acknowledges the work done [here](https://github.com/corda/corda-docker) by [Wawrzek](https://github.com/wawrzek), [Ben Abineri](https://github.com/benabineri), [przemolb](https://github.com/przemolb) and [Gary Rowe](https://github.com/gary-rowe).
-
-Authors:
-- Ben W 
-- Fuzz P
-- Mark S
-- Richard C
-- Ramiz A
-- Sal B
+This project acknowledges the contributions provided by
+- [Wawrzek Niewodniczanski](https://github.com/wawrzek)
+- [Ben Abineri](https://github.com/benabineri)
+- [przemolb](https://github.com/przemolb)
+- [Gary Rowe](https://github.com/gary-rowe)
+- [Ben Wyeth](https://github.com/nimmaj)
+- [Fuzz Pezeshkpour](https://github.com/dazraf)
+- [Mark Simpson](https://github.com/Bartman250)
+- [Richard Crook](https://github.com/pinkgrass)
+- [Ramiz Amad](https://github.com/ramiz99)
+- [Sal Badakhchani](https://github.com/sbadakhc)
 
 ## License
 
-View [license information](LICENSE) for the software contained in this image.
+View [license information](https://github.com/bluebankio/corda-docker/) for the software contained in this image.
 
 As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
 
