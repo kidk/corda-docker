@@ -59,5 +59,7 @@ RUN chmod +x /opt/corda/corda-$version.sh \
 # Expose port for corda (default is 10002)
 EXPOSE 10002
 
+USER corda
+
 # Start runit
 CMD [ "java", "-jar", "corda.jar" ]
