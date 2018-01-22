@@ -60,5 +60,4 @@ RUN chmod +x /opt/corda/corda-$version.sh \
 EXPOSE 10002
 
 # Start runit
-# CMD [ "java", "-jar", "corda.jar" ]
-CMD /bin/bash
+CMD [ "java", "-jar", "corda.jar" ]
