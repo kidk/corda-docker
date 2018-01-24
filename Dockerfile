@@ -62,4 +62,4 @@ EXPOSE 10002
 USER corda
 
 # Start runit
-CMD [ "java", "-jar", "corda.jar" ]
+ENTRYPOINT [ "java", "-jar", "corda.jar" ]
