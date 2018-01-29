@@ -41,7 +41,7 @@ RUN groupadd corda \
  && useradd -c "Corda user" -g corda -m -s /bin/bash corda
 
 # Create /opt/corda directory
-RUN mkdir -p /opt/corda/plugins && mkdir -p /opt/corda/logs && mkdir -p /opt/service/corda
+RUN mkdir -p /opt/corda/logs && mkdir -p /opt/service/corda
 
 # COPY corda-$version.sh /opt/service/corda/run
 COPY corda-$version.sh /opt/corda/
