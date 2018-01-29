@@ -41,24 +41,25 @@ RUN groupadd corda \
  && useradd -c "Corda user" -g corda -m -s /bin/bash corda
 
 # Create /opt/corda directory
-RUN mkdir -p /opt/corda/plugins && mkdir -p /opt/corda/logs
+RUN mkdir -p /opt/corda/logs && mkdir -p /opt/service/corda
+
+# COPY corda-$version.sh /opt/service/corda/run
+COPY corda-$version.sh /opt/corda/
 
 # Copy corda jar
 ADD https://dl.bintray.com/r3/corda/net/corda/corda/$version/corda-$version.jar /opt/corda/corda.jar
-# (for now use local dir rather then remote location)
-#COPY corda-$version.jar /opt/corda/corda.jar
 
-### Init script for corda
-RUN mkdir /etc/service/corda
-# COPY corda-$version.sh /etc/service/corda/run
-COPY corda-$version.sh /opt/corda/
-# RUN chmod +x /etc/service/corda/run
-RUN chmod +x /opt/corda/corda-$version.sh
-RUN /opt/corda/corda-2.0.0.sh
-RUN chown -R corda:corda /opt/corda
+# Fix permissions for Openshift security contexts
+RUN chmod +x /opt/corda/corda-$version.sh \
+ && chgrp -R 0 /opt/corda \
+ && chmod -R g=u /opt/corda \
+ && /opt/corda/corda-2.0.0.sh \
+ && chown -R corda:corda /opt/corda
 
 # Expose port for corda (default is 10002)
 EXPOSE 10002
 
+USER corda
+
 # Start runit
-CMD [ "java", "-jar", "corda.jar" ]
+ENTRYPOINT [ "java", "-jar", "corda.jar" ]
