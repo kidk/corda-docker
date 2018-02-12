@@ -18,6 +18,12 @@ FROM phusion/baseimage:0.9.22
 # Set up Version
 ENV version=2.0.0
 
+# Jolokia version
+ENV JOLOKIA_VERSION=1.5.0
+
+# Add label for CoScale monitoring
+LABEL com.coscale.monitoring='[{"PluginType":"JOLOKIA","Configuration":{"METRIC":[],"HOSTNAME":["localhost"],"PORT":["8778"],"USERNAME":[""],"PASSWORD":[""],"KEY FILE":[""],"CERT FILE":[""],"USE HTTPS":["false"],"COLLECT JVM":["true"],"CONFIGURATION TYPE":["MANUAL"]}}]'
+
 # Working directory for Corda
 WORKDIR /opt/corda
 ENV HOME=/opt/corda
@@ -49,6 +55,9 @@ COPY corda-$version.sh /opt/corda/
 # Copy corda jar
 ADD https://dl.bintray.com/r3/corda/net/corda/corda/$version/corda-$version.jar /opt/corda/corda.jar
 
+# Copy jolokia jar
+ADD --chown=corda:corda http://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-jvm/${JOLOKIA_VERSION}/jolokia-jvm-${JOLOKIA_VERSION}-agent.jar          /opt/corda/jolokia-jvm-agent.jar
+
 # Fix permissions for Openshift security contexts
 RUN chmod +x /opt/corda/corda-$version.sh \
  && chgrp -R 0 /opt/corda \
@@ -61,5 +70,5 @@ EXPOSE 10002
 
 USER corda
 
-# Start runit
-ENTRYPOINT [ "java", "-jar", "corda.jar" ]
+# Start run
+ENTRYPOINT [ "java", "-javaagent:/opt/corda/jolokia-jvm-agent.jar", "-jar", "corda.jar" ]
