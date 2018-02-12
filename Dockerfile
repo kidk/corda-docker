@@ -7,7 +7,12 @@ ARG BUILDTIME_CORDA_VERSION=2.0.0
 ARG BUILDTIME_JAVA_OPTIONS
 
 ENV CORDA_VERSION=${BUILDTIME_CORDA_VERSION}
-ENV JAVA_OPTIONS=${BUILDTIME_JAVA_OPTIONS}
+ENV JAVA_OPTIONS=${BUILDTIME_JAVA_OPTIONS} -javaagent:/opt/corda/jolokia-jvm-agent.jar=port=7005
+
+ENV JOLOKIA_VERSION=1.5.0
+
+# Add label for CoScale monitoring
+LABEL com.coscale.monitoring='[{"PluginType":"JOLOKIA","Configuration":{"METRIC":[],"HOSTNAME":["localhost","localhost"],"PORT":["7005","7006"],"USERNAME":["",""],"PASSWORD":["",""],"KEY FILE":["",""],"CERT FILE":["",""],"USE HTTPS":["false","false"],"COLLECT JVM":["true"],"CONFIGURATION TYPE":["MANUAL"]}}]'
 
 # Set image labels
 LABEL net.corda.version = ${CORDA_VERSION} \
@@ -27,6 +32,9 @@ RUN apk upgrade --update && \
 # Copy corda jar
 ADD --chown=corda:corda https://dl.bintray.com/r3/corda/net/corda/corda/${CORDA_VERSION}/corda-${CORDA_VERSION}.jar                       /opt/corda/corda.jar
 ADD --chown=corda:corda https://dl.bintray.com/r3/corda/net/corda/corda-webserver/${CORDA_VERSION}/corda-webserver-${CORDA_VERSION}.jar   /opt/corda/corda-webserver.jar
+
+# Copy jolokia jar
+ADD --chown=corda:corda http://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-jvm/${JOLOKIA_VERSION}/jolokia-jvm-${JOLOKIA_VERSION}-agent.jar          /opt/corda/jolokia-jvm-agent.jar
 
 COPY run-corda.sh /run-corda.sh
 RUN chmod +x /run-corda.sh && \
